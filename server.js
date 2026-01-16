@@ -5,7 +5,6 @@ require("dotenv").config();
 const app = express();
 app.use(express.json());
 
-// Databases configuration (Aiven)
 const dbConfig = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -14,8 +13,6 @@ const dbConfig = {
   port: process.env.DB_PORT,
 };
 
-
-// GET ALL HABITS
 // GET ALL HABITS
 app.get("/habits", async (req, res) => {
   try {
@@ -27,7 +24,6 @@ app.get("/habits", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // GET HABIT BY ID
 app.get("/habits/:id", async (req, res) => {
@@ -51,12 +47,9 @@ app.get("/habits/:id", async (req, res) => {
   }
 });
 
-
-// ADD NEW HABIT
-
+// POST
 app.post("/habits", async (req, res) => {
   const { habit_name, category, points } = req.body;
-
   if (!habit_name || !category || points === undefined) {
     return res.status(400).json({ error: "Missing required fields" });
   }
@@ -74,9 +67,7 @@ app.post("/habits", async (req, res) => {
   }
 });
 
-
-// UPDATE HABIT
-
+// PUT
 app.put("/habits/:id", async (req, res) => {
   const { habit_name, category, points } = req.body;
   const { id } = req.params;
@@ -98,18 +89,13 @@ app.put("/habits/:id", async (req, res) => {
   }
 });
 
-
-// DELETE HABIT
-
+// DELETE
 app.delete("/habits/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
     const connection = await mysql.createConnection(dbConfig);
-    await connection.execute(
-      "DELETE FROM habits WHERE id=?",
-      [id]
-    );
+    await connection.execute("DELETE FROM habits WHERE id=?", [id]);
     await connection.end();
     res.json({ message: "Habit deleted successfully" });
   } catch (err) {
@@ -117,8 +103,7 @@ app.delete("/habits/:id", async (req, res) => {
   }
 });
 
-
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Habit web service running on port ${PORT}`);
 });
