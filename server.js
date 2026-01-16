@@ -17,12 +17,23 @@ const dbConfig = {
 
 // GET ALL HABITS
 
-app.get("/habits", async (req, res) => {
+// GET HABIT BY ID
+app.get("/habits/:id", async (req, res) => {
+  const { id } = req.params;
+
   try {
     const connection = await mysql.createConnection(dbConfig);
-    const [rows] = await connection.execute("SELECT * FROM habits");
+    const [rows] = await connection.execute(
+      "SELECT * FROM habits WHERE id = ?",
+      [id]
+    );
     await connection.end();
-    res.json(rows);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Habit not found" });
+    }
+
+    res.json(rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
