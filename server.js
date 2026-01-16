@@ -16,6 +16,18 @@ const dbConfig = {
 
 
 // GET ALL HABITS
+// GET ALL HABITS
+app.get("/habits", async (req, res) => {
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+    const [rows] = await connection.execute("SELECT * FROM habits");
+    await connection.end();
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // GET HABIT BY ID
 app.get("/habits/:id", async (req, res) => {
