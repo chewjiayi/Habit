@@ -41,8 +41,8 @@ app.post('/addhabit', async (req, res) => {
     try{
         let connection = await mysql.createConnection(dbConfig);
         await connection.execute(
-            'INSERT INTO habits (habit_name, activity_date, status) VALUES (?,?,?)',
-            [habit_name, activity_date, status]
+            'INSERT INTO habits (habit_name, habit_showcase, frequency) VALUES (?,?,?)',
+            [habit_name, habit_showcase, frequency]
         );
         res.status(201).json({message: habit_name + ' habit successfully added'});
     } catch(err) {
@@ -59,8 +59,8 @@ app.put('/updatehabit/:id', async (req, res) => {
     try {
         let connection = await mysql.createConnection(dbConfig);
         await connection.execute(
-            'UPDATE habits SET habit_name = ?, activity_date = ?, status = ? WHERE id = ?',
-            [habit_name, activity_date, status, id]
+            'UPDATE habits SET habit_name = ?, habit_showcase = ?, frequency = ? WHERE id = ?',
+            [habit_name, habit_showcase, frequency, id]
         );
         res.json({ message: 'Eco green habit tracker successfully updated' });
     } catch (err) {
