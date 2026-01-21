@@ -22,7 +22,7 @@ app.use(express.json());
 
 //starting server
 app.listen(port, () => console.log(`Server started on port ${port}`));
-
+// CRUD (Done by Entong)
 //get all eco green habit logs
 app.get('/allhabits', async (req, res) => {
     try{
@@ -85,3 +85,85 @@ app.delete('/deletehabit/:id', async (req, res) => {
         res.status(500).json({ message: 'Server error - could not delete ' + habit_name});
     }
 });
+
+//CRUD for Activities (Jiayi)
+
+// get all eco green activities
+app.get('/allactivities', async (req, res) => {
+    try {
+        let connection = await mysql.createConnection(dbConfig);
+        const [rows] = await connection.execute(
+            'SELECT * FROM activities'
+        );
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error for allactivities' });
+    }
+});
+// get activities by habit id
+app.get('/activities/:habit_id', async (req, res) => {
+    const { habit_id } = req.params;
+
+    try {
+        let connection = await mysql.createConnection(dbConfig);
+        const [rows] = await connection.execute(
+            'SELECT * FROM activities WHERE habit_id = ?',
+            [habit_id]
+        );
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error for activities by habit' });
+    }
+});
+// add eco green activity
+app.post('/addactivity', async (req, res) => {
+    const { habit_id, activity_date, duration_minutes, notes } = req.body;
+
+    try {
+        let connection = await mysql.createConnection(dbConfig);
+        await connection.execute(
+            'INSERT INTO activities (habit_id, activity_date, duration_minutes, notes) VALUES (?,?,?,?)',
+            [habit_id, activity_date, duration_minutes, notes]
+        );
+        res.status(201).json({ message: 'Activity successfully added' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error - could not add activity' });
+    }
+});
+// update eco green activity
+app.put('/updateactivity/:id', async (req, res) => {
+    const { id } = req.params;
+    const { habit_id, activity_date, duration_minutes, notes } = req.body;
+
+    try {
+        let connection = await mysql.createConnection(dbConfig);
+        await connection.execute(
+            'UPDATE activities SET habit_id = ?, activity_date = ?, duration_minutes = ?, notes = ? WHERE id = ?',
+            [habit_id, activity_date, duration_minutes, notes, id]
+        );
+        res.json({ message: 'Activity successfully updated' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error - could not update activity' });
+    }
+});
+// delete eco green activity
+app.delete('/deleteactivity/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        let connection = await mysql.createConnection(dbConfig);
+        await connection.execute(
+            'DELETE FROM activities WHERE id = ?',
+            [id]
+        );
+        res.json({ message: 'Activity successfully deleted' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error - could not delete activity' });
+    }
+});
+
