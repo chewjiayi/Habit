@@ -37,24 +37,26 @@ app.get('/allhabits', async (req, res) => {
 
 //add eco green habit log
 app.post('/addhabit', async (req, res) => {
-    const { habit_name, activity_date, status } = req.body;
-    try{
+    const { habit_name, habit_showcase, frequency } = req.body;
+
+    try {
         let connection = await mysql.createConnection(dbConfig);
         await connection.execute(
             'INSERT INTO habits (habit_name, habit_showcase, frequency) VALUES (?,?,?)',
             [habit_name, habit_showcase, frequency]
         );
-        res.status(201).json({message: habit_name + ' habit successfully added'});
-    } catch(err) {
+        res.status(201).json({ message: habit_name + ' habit successfully added' });
+    } catch (err) {
         console.error(err);
-        res.status(500).json({message: 'Server error - could not add ' + habit_name});
+        res.status(500).json({ message: 'Server error - could not add habit' });
     }
 });
+
 
 //update eco green habit log
 app.put('/updatehabit/:id', async (req, res) => {
     const { id } = req.params;
-    const { habit_name, activity_date, status } = req.body;
+    const { habit_name, habit_showcase, frequency } = req.body;
 
     try {
         let connection = await mysql.createConnection(dbConfig);
@@ -62,12 +64,13 @@ app.put('/updatehabit/:id', async (req, res) => {
             'UPDATE habits SET habit_name = ?, habit_showcase = ?, frequency = ? WHERE id = ?',
             [habit_name, habit_showcase, frequency, id]
         );
-        res.json({ message: 'Eco green habit tracker successfully updated' });
+        res.json({ message: 'Habit successfully updated' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error - could not update eco green habit tracker' });
+        res.status(500).json({ message: 'Server error - could not update habit' });
     }
 });
+
 
 //delete eco green habit log
 app.delete('/deletehabit/:id', async (req, res) => {
@@ -79,12 +82,13 @@ app.delete('/deletehabit/:id', async (req, res) => {
             'DELETE FROM habits WHERE id = ?',
             [id]
         );
-        res.json({ message: habit_name + ' habit successfully deleted' });
+        res.json({ message: 'Habit successfully deleted' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error - could not delete ' + habit_name});
+        res.status(500).json({ message: 'Server error - could not delete habit' });
     }
 });
+
 
 //CRUD for Activities (Jiayi)
 
