@@ -27,7 +27,7 @@ app.listen(port, () => console.log(`Server started on port ${port}`));
 app.get('/allhabits', async (req, res) => {
     try{
         let connection = await mysql.createConnection(dbConfig);
-        const [rows] = await connection.execute('SELECT * FROM defaultdb.habit_tracker');
+        const [rows] = await connection.execute('SELECT * FROM habits');
         res.json(rows);
     } catch(err) {
         console.error(err);
@@ -41,7 +41,7 @@ app.post('/addhabit', async (req, res) => {
     try{
         let connection = await mysql.createConnection(dbConfig);
         await connection.execute(
-            'INSERT INTO habit_tracker (habit_name, activity_date, status) VALUES (?,?,?)',
+            'INSERT INTO habits (habit_name, activity_date, status) VALUES (?,?,?)',
             [habit_name, activity_date, status]
         );
         res.status(201).json({message: habit_name + ' habit successfully added'});
@@ -59,7 +59,7 @@ app.put('/updatehabit/:id', async (req, res) => {
     try {
         let connection = await mysql.createConnection(dbConfig);
         await connection.execute(
-            'UPDATE habit_tracker SET habit_name = ?, activity_date = ?, status = ? WHERE id = ?',
+            'UPDATE habits SET habit_name = ?, activity_date = ?, status = ? WHERE id = ?',
             [habit_name, activity_date, status, id]
         );
         res.json({ message: 'Eco green habit tracker successfully updated' });
@@ -76,7 +76,7 @@ app.delete('/deletehabit/:id', async (req, res) => {
     try {
         let connection = await mysql.createConnection(dbConfig);
         await connection.execute(
-            'DELETE FROM habit_tracker WHERE id = ?',
+            'DELETE FROM habits WHERE id = ?',
             [id]
         );
         res.json({ message: habit_name + ' habit successfully deleted' });
