@@ -3,7 +3,7 @@ const mysql = require('mysql2/promise');
 require('dotenv').config();
 const port = 3000;
 
-//database configuration info
+// database configuration info
 const dbConfig = {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -15,33 +15,39 @@ const dbConfig = {
     queueLimit: 0,
 };
 
-//initialise express app
+// CREATE CONNECTION POOL
+const pool = mysql.createPool(dbConfig);
+
+// initialise express app
 const app = express();
-//help us read json
+
+// help us read json
 app.use(express.json());
 
-//starting server
+// starting server
 app.listen(port, () => console.log(`Server started on port ${port}`));
-// CRUD (Done by Entong)
-//get all eco green habit logs
+
+/* =========================
+   CRUD for Habits (Entong)
+   ========================= */
+
+// get all eco green habit logs
 app.get('/allhabits', async (req, res) => {
-    try{
-        let connection = await mysql.createConnection(dbConfig);
-        const [rows] = await connection.execute('SELECT * FROM habits');
+    try {
+        const [rows] = await pool.execute('SELECT * FROM habits');
         res.json(rows);
-    } catch(err) {
+    } catch (err) {
         console.error(err);
-        res.status(500).json({message: 'Server error for allhabits'});
+        res.status(500).json({ message: 'Server error for allhabits' });
     }
 });
 
-//add eco green habit log
+// add eco green habit log
 app.post('/addhabit', async (req, res) => {
     const { habit_name, habit_showcase, frequency } = req.body;
 
     try {
-        let connection = await mysql.createConnection(dbConfig);
-        await connection.execute(
+        await pool.execute(
             'INSERT INTO habits (habit_name, habit_showcase, frequency) VALUES (?,?,?)',
             [habit_name, habit_showcase, frequency]
         );
@@ -52,15 +58,13 @@ app.post('/addhabit', async (req, res) => {
     }
 });
 
-
-//update eco green habit log
+// update eco green habit log
 app.put('/updatehabit/:id', async (req, res) => {
     const { id } = req.params;
     const { habit_name, habit_showcase, frequency } = req.body;
 
     try {
-        let connection = await mysql.createConnection(dbConfig);
-        await connection.execute(
+        await pool.execute(
             'UPDATE habits SET habit_name = ?, habit_showcase = ?, frequency = ? WHERE id = ?',
             [habit_name, habit_showcase, frequency, id]
         );
@@ -71,14 +75,12 @@ app.put('/updatehabit/:id', async (req, res) => {
     }
 });
 
-
-//delete eco green habit log
+// delete eco green habit log
 app.delete('/deletehabit/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
-        let connection = await mysql.createConnection(dbConfig);
-        await connection.execute(
+        await pool.execute(
             'DELETE FROM habits WHERE id = ?',
             [id]
         );
@@ -89,29 +91,27 @@ app.delete('/deletehabit/:id', async (req, res) => {
     }
 });
 
-
-//CRUD for Activities (Jiayi)
+/* =========================
+   CRUD for Activities (Jiayi)
+   ========================= */
 
 // get all eco green activities
 app.get('/allactivities', async (req, res) => {
     try {
-        let connection = await mysql.createConnection(dbConfig);
-        const [rows] = await connection.execute(
-            'SELECT * FROM activities'
-        );
+        const [rows] = await pool.execute('SELECT * FROM activities');
         res.json(rows);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error for allactivities' });
     }
 });
+
 // get activities by habit id
 app.get('/activities/:habit_id', async (req, res) => {
     const { habit_id } = req.params;
 
     try {
-        let connection = await mysql.createConnection(dbConfig);
-        const [rows] = await connection.execute(
+        const [rows] = await pool.execute(
             'SELECT * FROM activities WHERE habit_id = ?',
             [habit_id]
         );
@@ -121,13 +121,13 @@ app.get('/activities/:habit_id', async (req, res) => {
         res.status(500).json({ message: 'Server error for activities by habit' });
     }
 });
+
 // add eco green activity
 app.post('/addactivity', async (req, res) => {
     const { habit_id, activity_date, duration_minutes, notes } = req.body;
 
     try {
-        let connection = await mysql.createConnection(dbConfig);
-        await connection.execute(
+        await pool.execute(
             'INSERT INTO activities (habit_id, activity_date, duration_minutes, notes) VALUES (?,?,?,?)',
             [habit_id, activity_date, duration_minutes, notes]
         );
@@ -137,14 +137,14 @@ app.post('/addactivity', async (req, res) => {
         res.status(500).json({ message: 'Server error - could not add activity' });
     }
 });
+
 // update eco green activity
 app.put('/updateactivity/:id', async (req, res) => {
     const { id } = req.params;
     const { habit_id, activity_date, duration_minutes, notes } = req.body;
 
     try {
-        let connection = await mysql.createConnection(dbConfig);
-        await connection.execute(
+        await pool.execute(
             'UPDATE activities SET habit_id = ?, activity_date = ?, duration_minutes = ?, notes = ? WHERE id = ?',
             [habit_id, activity_date, duration_minutes, notes, id]
         );
@@ -154,13 +154,13 @@ app.put('/updateactivity/:id', async (req, res) => {
         res.status(500).json({ message: 'Server error - could not update activity' });
     }
 });
+
 // delete eco green activity
 app.delete('/deleteactivity/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
-        let connection = await mysql.createConnection(dbConfig);
-        await connection.execute(
+        await pool.execute(
             'DELETE FROM activities WHERE id = ?',
             [id]
         );
@@ -170,4 +170,3 @@ app.delete('/deleteactivity/:id', async (req, res) => {
         res.status(500).json({ message: 'Server error - could not delete activity' });
     }
 });
-
